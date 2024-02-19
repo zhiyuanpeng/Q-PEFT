@@ -276,7 +276,7 @@ if __name__ == "__main__":
     parser.add_argument("--exp_k", type=int, default=1, help="# of expanded tokens") 
     parser.add_argument("--exp_mode", type=int, default=1, help="set 1: for each token, retrieve exp_k tokens; set 2: for each query expand to top exp_k tokens")
     parser.add_argument("--exp_head_num", type=int, default=0, help="for mode 4, attention haed num")
-    parser.add_argument("--exp_loc", type=str, default="prefix", help="append expanded tokens to prefix or suffix the document", choices=["prefix", "suffix"])
+    parser.add_argument("--exp_loc", type=str, default="suffix", help="append expanded tokens to prefix or suffix the document", choices=["prefix", "suffix"])
     parser.add_argument("--exp_normalize", action="store_true", help="Set True to apply normalize on q_v matrix")
     parser.add_argument("--exp_random", action="store_true", help="Set True to select random k tokens from V for mode 2 and from document for mode 3")
     parser.add_argument("--exp_filter_dict_path", default="./token_filter.pkl",help="blacklist of tokens to be filtered out")
