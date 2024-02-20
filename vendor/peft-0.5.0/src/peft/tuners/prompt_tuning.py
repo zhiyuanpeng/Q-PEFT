@@ -303,7 +303,7 @@ class PromptEmbedding(torch.nn.Module):
     def filter_ids(self, d_k_ids, blacklist_ids):
         filtered_tensors = []
         for tensor in d_k_ids:
-            mask = torch.tensor([item not in blacklist_ids for item in tensor.tolist()])
+            mask = torch.tensor([item not in blacklist_ids for item in tensor.tolist()], dtype=torch.bool)
             filtered_tensors.append(tensor[mask])
         return filtered_tensors
     
