@@ -137,14 +137,37 @@ if run_id:
         for k, v in metrics.items():
             log_metric(f"{args.retriever_name}-{k}", v)
         for k, v in f_metrics.items():
-            log_metric(f"{args.retriever_name}-{k}-f", v)
+            log_metric(f"{args.retriever_name}-{k}_f", v)
 else:
     # If no run ID is found, start a new run with the specified run_name
     with mlflow.start_run(run_name=ml_run_name):
         for k, v in metrics.items():
             log_metric(f"{args.retriever_name}-{k}", v)
         for k, v in f_metrics.items():
-            log_metric(f"{args.retriever_name}-{k}-f", v)
+            log_metric(f"{args.retriever_name}-{k}_f", v)
         for k, v in training_parameters.items():
             log_param(k, v)
+
+def compute_average_metrics(run_id):
+    # Get the run data
+    run_data = MlflowClient().get_run(run_id).data
+
+    # Get the metrics
+    metrics = run_data.metrics
+
+    # For each 'k' in the list of unique 'k' values in the metrics
+    for k in set(key.split('-')[-1] for key in metrics.keys()):
+        # Filter and compute average of metrics ending with '-k' and '-k_f'
+        k_metrics = {key: v for key, v in metrics.items() if key.endswith(f'-{k}') and not key.endswith(f'-{k}_f') and not key.startswith('avg')}
+        kf_metrics = {key: v for key, v in metrics.items() if key.endswith(f'-{k}_f') and not key.startswith('avg')}
+        avg_k = sum(k_metrics.values()) / len(k_metrics) if k_metrics else 0
+        avg_kf = sum(kf_metrics.values()) / len(kf_metrics) if kf_metrics else 0
+
+        # Log the average metrics
+        with mlflow.start_run(run_id=run_id):
+            mlflow.log_metric(f"avg-{k}", avg_k)
+            mlflow.log_metric(f"avg-{k}-f", avg_kf)
+
+# Compute average metrics for the run
+compute_average_metrics(run_id)
     
