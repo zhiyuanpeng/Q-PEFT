@@ -158,15 +158,12 @@ def compute_average_metrics(run_id):
     # For each 'k' in the list of unique 'k' values in the metrics
     for k in set(key.split('-')[-1] for key in metrics.keys()):
         # Filter and compute average of metrics ending with '-k' and '-k_f'
-        k_metrics = {key: v for key, v in metrics.items() if key.endswith(f'-{k}') and not key.endswith(f'-{k}_f') and not key.startswith('avg')}
-        kf_metrics = {key: v for key, v in metrics.items() if key.endswith(f'-{k}_f') and not key.startswith('avg')}
-        avg_k = sum(k_metrics.values()) / len(k_metrics) if k_metrics else 0
-        avg_kf = sum(kf_metrics.values()) / len(kf_metrics) if kf_metrics else 0
+        all_retriever_metrics = {key: v for key, v in metrics.items() if key.endswith(f'{k}') and not key.startswith('avg')}
+        avg = sum(all_retriever_metrics.values()) / len(all_retriever_metrics) if all_retriever_metrics else 0
 
         # Log the average metrics
         with mlflow.start_run(run_id=run_id):
-            mlflow.log_metric(f"avg-{k}", avg_k)
-            mlflow.log_metric(f"avg-{k}-f", avg_kf)
+            mlflow.log_metric(f"avg-{k}", avg)
 
 # Compute average metrics for the run
 compute_average_metrics(run_id)
