@@ -309,6 +309,7 @@ class PromptEmbedding(torch.nn.Module):
     
     def filter_eq(self, d_k_ids, docspec_ids, q_len, device):
         # "[None], [duplicate], [duplicate, stopwords], [duplicate, alphabetic], [duplicate, stopwords, alphabetic]"
+        ori_d_k_ids = d_k_ids
         # by default, filter out the retrieved tokens in the query
         if self.exp_mode == 2 and "q" in self.exp_filter_mode:
             d_k_ids = d_k_ids[:, q_len:]
@@ -342,12 +343,15 @@ class PromptEmbedding(torch.nn.Module):
         # for mode 2, its less likely to have 1,2 tokens in d_k_ids
         d_k_ids = self.filter_ids(d_k_ids, [1,2])
         ans = []
-        for tensor in d_k_ids:
+        for tensor, ori_tensor in zip(d_k_ids, ori_d_k_ids):
             if len(tensor) < self.exp_k:
-                assert len(tensor) > 0, "no token left after filtering"
-                print("not enough tokens to expand, please retrieve more tokens")
-                indices = torch.randint(len(tensor), (self.exp_k,))
-                tensor = tensor[indices]
+                if len(tensor) == 0:
+                    print("no token left after filtering, do not apply filter for this query")
+                    tensor = ori_tensor
+                else:
+                    print("not enough tokens to expand, oversample to exp_k tokens")
+                    indices = torch.randint(len(tensor), (self.exp_k,))
+                    tensor = tensor[indices]
             ans.append(tensor[:self.exp_k])
         d_k_ids = torch.stack(ans)
         return d_k_ids.to(device)
