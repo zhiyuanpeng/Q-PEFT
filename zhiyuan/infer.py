@@ -164,7 +164,7 @@ def compute_average_metrics(run_id):
         # Log the average metrics
         with mlflow.start_run(run_id=run_id):
             mlflow.log_metric(f"avg-{k}", avg)
-
+run_id = get_run_id(ml_exp_name, ml_run_name)
 # Compute average metrics for the run
 compute_average_metrics(run_id)
     
