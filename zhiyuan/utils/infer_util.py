@@ -39,6 +39,7 @@ def compute_topk_hit_rate(answers_list: List[List[bool]], report_top_k=[20, 100]
 def sig_test_hit_rate(logger, retriever_list: List[List[bool]], re_ranker_list: List[List[bool]], report_top_k: List[int]):
     
     sig_test = {}
+    ans = {}
     for k in report_top_k:
         # Convert HR@k into binary outcomes for all queries
         retriever_hits = [1 if any(q_hits[:k]) else 0 for q_hits in retriever_list]
@@ -61,26 +62,37 @@ def sig_test_hit_rate(logger, retriever_list: List[List[bool]], re_ranker_list: 
     logger.info("\n")
     for k in report_top_k:    
         logger.info(f"HR@{k} ttest_rel: t-stat={sig_test[k]['rel'][0]}, p-value={sig_test[k]['rel'][1]}")
+        ans[f"PH_{k}"] = round(sig_test[k]['rel'][1])
     logger.info("\n")
     
     # for k in report_top_k:
     #     logger.info(f"HR@{k} ttest_ind: t-stat={sig_test[k]['ind'][0]}, p-value={sig_test[k]['ind'][1]}")
     logger.info("\n")
+    return ans
 
 def compute_topk_hit_rate_logger(logger, answers_list, report_top_k=[20, 100], string_prefix="Original Ranking"):
     topk_hits = calculate_topk_hits(answers_list, max_k=report_top_k[-1])
     n_docs = len(answers_list)
     topk_hits = [i/n_docs for i in topk_hits]
+    ans = {}
     if logger:
         logger.info(string_prefix)
         for i in report_top_k:
             logger.info("HR@{}: {:.2f}".format(i, topk_hits[i - 1] * 100))
+            ans[f"H_{i}"] = round(topk_hits[i - 1] * 100, ndigits=2)
         logger.info("\n")
     else:
         print(string_prefix)
         for i in report_top_k:
             print("HR@{}: {:.2f}".format(i, topk_hits[i - 1] * 100))
+            ans[f"H_{i}"] = round(topk_hits[i - 1] * 100, ndigits=2)
         print("\n")
+    top2k = [5, 10]
+    top3k = [5, 10, 15]
+    ans["H_top2"] = round(sum([ans[f"H_{k}"] for k in top2k])/2, ndigits=2)
+    ans["H_top3"] = round(sum([ans[f"H_{k}"] for k in top3k])/3, ndigits=2)
+    ans["H_all"] = round(sum([ans[f"H_{k}"] for k in report_top_k])/len(report_top_k), ndigits=2)
+    return ans
 
 def calculate_recall_at_k(true_labels: List[bool], sorted_labels: List[bool], k: int) -> float:
     # Get the top k sorted labels
@@ -112,15 +124,15 @@ def evaluate_recall(logger, true_list: List[List[bool]], pred_list: List[List[bo
     logger.info(f"Pred recall: {retriever_name}")
     for k in report_top_k:
         logger.info("Recall@{}: {:.2f}".format(k, sum(recalls_re_ranker[k])*100/len(recalls_re_ranker[k])))
-        ans[f"R_{k}"] = sum(recalls_re_ranker[k])*100/len(recalls_re_ranker[k])
+        ans[f"R_{k}"] = round(sum(recalls_re_ranker[k])*100/len(recalls_re_ranker[k]), ndigits=2)
     logger.info("\n")
     top2k = [5, 10]
-    top3k = [5, 10, 20]
-    ans["R_top2"] = sum([ans[f"R_{k}"] for k in top2k])/2
+    top3k = [5, 10, 15]
+    ans["R_top2"] = round(sum([ans[f"R_{k}"] for k in top2k])/2, ndigits=2)
     logger.info("Recall@top2: {:.2f}".format(ans["R_top2"]))
-    ans["R_top3"] = sum([ans[f"R_{k}"] for k in top3k])/3
+    ans["R_top3"] = round(sum([ans[f"R_{k}"] for k in top3k])/3, ndigits=2)
     logger.info("Recall@top3: {:.2f}".format(ans["R_top3"]))
-    ans["R_all"] = sum([ans[f"R_{k}"] for k in report_top_k])/len(report_top_k)
+    ans["R_all"] = round(sum([ans[f"R_{k}"] for k in report_top_k])/len(report_top_k), ndigits=2)
     logger.info("Recall@all: {:.2f}".format(ans["R_all"]))
     logger.info(f"Original recall: {retriever_name}")
     for k in report_top_k:
@@ -130,7 +142,7 @@ def evaluate_recall(logger, true_list: List[List[bool]], pred_list: List[List[bo
     for k in report_top_k:
         rel_t_stat, rel_p_value = stats.ttest_rel(recalls_re_ranker[k], recalls_retriever[k])
         logger.info(f"Recall@{k} ttest_rel: t-stat={rel_t_stat}, p-value={rel_p_value}")
-        ans[f"P_{k}"] = rel_p_value
+        ans[f"PR_{k}"] = rel_p_value
     logger.info("\n")
     return ans
 
@@ -284,13 +296,13 @@ def inference(model, data_module, dataset_name, device, json_file_path, logger, 
     print(f"{dataset_name} {retriever_name}: ")
     logger.info("clean ranking results: ")
 
-    ans = evaluate_recall(logger, retriever_answers_list, pred_answers_list, report_top_k=report_top_k, retriever_name=retriever_name)
+    recalls = evaluate_recall(logger, retriever_answers_list, pred_answers_list, report_top_k=report_top_k, retriever_name=retriever_name)
     
-    pred_results = compute_topk_hit_rate_logger(logger, pred_answers_list, report_top_k=report_top_k, string_prefix=f"Pred Ranking: {retriever_name}")
+    hitrate = compute_topk_hit_rate_logger(logger, pred_answers_list, report_top_k=report_top_k, string_prefix=f"Pred Ranking: {retriever_name}")
 
     retriever_results = compute_topk_hit_rate_logger(logger, retriever_answers_list, report_top_k=report_top_k, string_prefix=f"Original Ranking: {retriever_name}")
 
-    sig_test_hit_rate(logger, retriever_answers_list, pred_answers_list, report_top_k=report_top_k)
+    p_hitrate = sig_test_hit_rate(logger, retriever_answers_list, pred_answers_list, report_top_k=report_top_k)
 
     logger.info("full ranking results: ")
     full_retriever_answers_list = []
@@ -304,13 +316,13 @@ def inference(model, data_module, dataset_name, device, json_file_path, logger, 
             full_retriever_answers_list.append([False]*retriever_topk)
             full_pred_answers_list.append([False]*retriever_topk)
 
-    f_ans = evaluate_recall(logger, full_retriever_answers_list, full_pred_answers_list, report_top_k=report_top_k, retriever_name=retriever_name)
+    f_recalls = evaluate_recall(logger, full_retriever_answers_list, full_pred_answers_list, report_top_k=report_top_k, retriever_name=retriever_name)
 
-    pred_results = compute_topk_hit_rate_logger(logger, full_pred_answers_list, report_top_k=report_top_k, string_prefix=f"Pred Ranking: {retriever_name}")
+    f_hitrate = compute_topk_hit_rate_logger(logger, full_pred_answers_list, report_top_k=report_top_k, string_prefix=f"Pred Ranking: {retriever_name}")
 
     retriever_results = compute_topk_hit_rate_logger(logger, full_retriever_answers_list, report_top_k=report_top_k, string_prefix=f"Original Ranking: {retriever_name}")
 
-    sig_test_hit_rate(logger, full_retriever_answers_list, full_pred_answers_list, report_top_k=report_top_k)
+    fp_hitrate = sig_test_hit_rate(logger, full_retriever_answers_list, full_pred_answers_list, report_top_k=report_top_k)
     
     # saving the results file
     # json_object = json.dumps(pred_json_results)
@@ -325,7 +337,9 @@ def inference(model, data_module, dataset_name, device, json_file_path, logger, 
     with open(cleaned_q_out_path, "w") as q_outfile:
         for s_q in cleaned_samples_q:
             q_outfile.write(s_q+"\n")
-    return ans, f_ans
+    hitrate.update(p_hitrate)
+    f_hitrate.update(fp_hitrate)
+    return recalls.update(hitrate), f_recalls.update(f_hitrate)
 
 def main():
 
