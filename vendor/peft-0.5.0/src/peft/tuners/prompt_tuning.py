@@ -344,6 +344,7 @@ class PromptEmbedding(torch.nn.Module):
         d_k_ids = self.filter_ids(d_k_ids, [1,2])
         ans = []
         for tensor, ori_tensor in zip(d_k_ids, ori_d_k_ids):
+            tensor = tensor.to(device)
             if len(tensor) < self.exp_k:
                 if len(tensor) == 0:
                     print("no token left after filtering, do not apply filter for this query")
