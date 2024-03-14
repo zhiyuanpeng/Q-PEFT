@@ -62,7 +62,7 @@ def sig_test_hit_rate(logger, retriever_list: List[List[bool]], re_ranker_list: 
     logger.info("\n")
     for k in report_top_k:    
         logger.info(f"HR@{k} ttest_rel: t-stat={sig_test[k]['rel'][0]}, p-value={sig_test[k]['rel'][1]}")
-        ans[f"PH_{k}"] = round(sig_test[k]['rel'][1])
+        ans[f"PH_{k}"] = sig_test[k]['rel'][1]
     logger.info("\n")
     
     # for k in report_top_k:
@@ -339,7 +339,9 @@ def inference(model, data_module, dataset_name, device, json_file_path, logger, 
             q_outfile.write(s_q+"\n")
     hitrate.update(p_hitrate)
     f_hitrate.update(fp_hitrate)
-    return recalls.update(hitrate), f_recalls.update(f_hitrate)
+    recalls.update(hitrate)
+    f_recalls.update(f_hitrate)
+    return recalls, f_recalls
 
 def main():
 
