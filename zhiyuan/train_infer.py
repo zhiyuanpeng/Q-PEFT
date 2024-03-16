@@ -58,13 +58,13 @@ def load_tokenizer(args):
     tokenizer.pad_token_id = tokenizer.eos_token_id
     return tokenizer
 
-def compute_loss(outputs, labels, num_virtual_tokens, train_method):
+def compute_loss(outputs, labels, num_virtual_tokens, train_method, margin=0):
     if train_method == 'pointwise':
         return outputs.loss
     elif train_method == 'pairwise':
         return pairwise_compute_loss(outputs, labels, num_virtual_tokens)
     elif train_method == 'pairwise_v2':
-        return sprk_compute_loss(outputs, labels, num_virtual_tokens)
+        return sprk_compute_loss(outputs, labels, num_virtual_tokens, margin)
 
 def data2device(mini_batch, device):
     """convert a batch data to device
@@ -187,7 +187,7 @@ def main(args):
             for mini_batch in batch:
                 mini_batch = data2device(mini_batch, args.device)
                 outputs, input_labels, d_k_ids = model(**mini_batch)
-                loss = compute_loss(outputs, input_labels, args.num_virtual_tokens, args.training_method)
+                loss = compute_loss(outputs, input_labels, args.num_virtual_tokens, args.training_method, args.exp_margin)
                 log_writer.add_scalar('Training/train_loss_step', loss.detach().float().item(), current_step)
                 current_step += 1
                 avg_train_loss.update(loss.detach().float().item())
@@ -202,7 +202,7 @@ def main(args):
                 mini_batch = data2device(mini_batch, args.device)
                 with torch.no_grad():
                     outputs, input_labels, d_k_ids = model(**mini_batch)
-                loss = compute_loss(outputs, input_labels, args.num_virtual_tokens, args.training_method)
+                loss = compute_loss(outputs, input_labels, args.num_virtual_tokens, args.training_method, args.exp_margin)
 
                 avg_val_loss.update(loss.detach().float().item())
         # get metrics
@@ -282,6 +282,7 @@ if __name__ == "__main__":
     parser.add_argument("--exp_filter_dict_path", default="./token_filter.pkl",help="blacklist of tokens to be filtered out")
     parser.add_argument("--exp_filter_mode", default="d", help="n: None, q: mode3, remove q itself, d: duplicate, ds: duplicate and stopword, da: duplicate and alpha, dsa: duplicate, stopword and alpha")
     parser.add_argument("--exp_prompt", type=str, default="hints", help="prompt before the retrieved topk tokens")
+    parser.add_argument("--exp_margin", type=float, default=0.0, help="margin in hinge loss")
     # inference related
     parser.add_argument("--retriever_topk", type=int, default=100, help="topk items")
     parser.add_argument('-rn','--retriever_name', nargs='+', help='<Required> Set flag', required=True)

@@ -53,7 +53,7 @@ def sprk_compute_loss(outputs, labels, virtual_token_num, margin=0):
     loss = loss_fct(shift_logits.permute(0, 2, 1), shift_labels)
     loss_mask = loss != 0
     loss = (loss*loss_mask).sum(dim=1)/loss_mask.sum(dim=1)
-    pos_neg_penalty = torch.mean(relu(loss[::2]-loss[1::2]))
+    pos_neg_penalty = torch.mean(relu(loss[::2]-loss[1::2] + margin))
     poins_loss = torch.mean(loss[::2])
     return pos_neg_penalty+poins_loss
 
