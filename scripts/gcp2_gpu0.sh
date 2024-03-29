@@ -103,11 +103,11 @@ chmod +x $(pwd)/zhiyuan/multi_run_infer.py
 # python $(pwd)/zhiyuan/train_infer.py --dataset_name trivia --device_idx 0 --fp16train --docspec --docspec_layer_num 1 --exp_k 20 --exp_mode 3 --exp_normalize -rn bm25_scu dpr mss-dpr mss contriever --exp_margin 1.1 --enable_scheduler
 
 #nq k=15, margin=0.7
-python $(pwd)/zhiyuan/train_infer.py --dataset_name nq --device_idx 0 --fp16train --docspec --docspec_layer_num 1 --exp_k 15 --exp_mode 3 --exp_normalize -rn bm25_scu dpr mss-dpr mss contriever --exp_margin 0.7 --training_sample 80
-python $(pwd)/zhiyuan/train_infer.py --dataset_name nq --device_idx 0 --fp16train --docspec --docspec_layer_num 1 --exp_k 15 --exp_mode 3 --exp_normalize -rn bm25_scu dpr mss-dpr mss contriever --exp_margin 0.7 --training_sample 160
+# python $(pwd)/zhiyuan/train_infer.py --dataset_name nq --device_idx 0 --fp16train --docspec --docspec_layer_num 1 --exp_k 15 --exp_mode 3 --exp_normalize -rn bm25_scu dpr mss-dpr mss contriever --exp_margin 0.7 --training_sample 80
+python $(pwd)/zhiyuan/train_infer.py --dataset_name nq --device_idx 0 --fp16train --docspec --docspec_layer_num 1 --exp_k 15 --exp_mode 3 --exp_normalize -rn bm25_scu dpr mss-dpr mss contriever --exp_margin 0.7 --training_sample 2560
 #webq k=20, margin=0.0
-python $(pwd)/zhiyuan/train_infer.py --dataset_name webq --device_idx 0 --fp16train --docspec --docspec_layer_num 1 --exp_k 20 --exp_mode 3 --exp_normalize -rn bm25_scu dpr mss-dpr mss contriever --exp_margin 0.0 --training_sample 80
-python $(pwd)/zhiyuan/train_infer.py --dataset_name webq --device_idx 0 --fp16train --docspec --docspec_layer_num 1 --exp_k 20 --exp_mode 3 --exp_normalize -rn bm25_scu dpr mss-dpr mss contriever --exp_margin 0.0 --training_sample 160
+# python $(pwd)/zhiyuan/train_infer.py --dataset_name webq --device_idx 0 --fp16train --docspec --docspec_layer_num 1 --exp_k 20 --exp_mode 3 --exp_normalize -rn bm25_scu dpr mss-dpr mss contriever --exp_margin 0.0 --training_sample 80
+python $(pwd)/zhiyuan/train_infer.py --dataset_name webq --device_idx 0 --fp16train --docspec --docspec_layer_num 1 --exp_k 20 --exp_mode 3 --exp_normalize -rn bm25_scu dpr mss-dpr mss contriever --exp_margin 0.0 --training_sample 2560
 # #squad1 k=10, margin=0.0
 # python $(pwd)/zhiyuan/train_infer.py --dataset_name squad1 --device_idx 0 --fp16train --docspec --docspec_layer_num 1 --exp_k 10 --exp_mode 3 --exp_normalize -rn bm25_scu dpr mss-dpr mss contriever --exp_margin 0.0 --enable_scheduler --training_sample 640
 # python $(pwd)/zhiyuan/train_infer.py --dataset_name squad1 --device_idx 0 --fp16train --docspec --docspec_layer_num 1 --exp_k 10 --exp_mode 3 --exp_normalize -rn bm25_scu dpr mss-dpr mss contriever --exp_margin 0.0 --enable_scheduler --training_sample 1280
@@ -116,9 +116,9 @@ python $(pwd)/zhiyuan/train_infer.py --dataset_name webq --device_idx 0 --fp16tr
 # python $(pwd)/zhiyuan/train_infer.py --dataset_name trivia --device_idx 0 --fp16train --docspec --docspec_layer_num 1 --exp_k 20 --exp_mode 3 --exp_normalize -rn bm25_scu dpr mss-dpr mss contriever --exp_margin 1.1 --enable_scheduler --training_sample 1280
 
 #squad1 k=10, margin=0.0
-python $(pwd)/zhiyuan/train_infer.py --dataset_name squad1 --device_idx 0 --fp16train --docspec --docspec_layer_num 1 --exp_k 10 --exp_mode 3 --exp_normalize -rn bm25_scu dpr mss-dpr mss contriever --exp_margin 0.0 --training_sample 80
-python $(pwd)/zhiyuan/train_infer.py --dataset_name squad1 --device_idx 0 --fp16train --docspec --docspec_layer_num 1 --exp_k 10 --exp_mode 3 --exp_normalize -rn bm25_scu dpr mss-dpr mss contriever --exp_margin 0.0 --training_sample 160
+# python $(pwd)/zhiyuan/train_infer.py --dataset_name squad1 --device_idx 0 --fp16train --docspec --docspec_layer_num 1 --exp_k 10 --exp_mode 3 --exp_normalize -rn bm25_scu dpr mss-dpr mss contriever --exp_margin 0.0 --training_sample 80
+python $(pwd)/zhiyuan/train_infer.py --dataset_name squad1 --device_idx 0 --fp16train --docspec --docspec_layer_num 1 --exp_k 10 --exp_mode 3 --exp_normalize -rn bm25_scu dpr mss-dpr mss contriever --exp_margin 0.0 --training_sample 2560
 #trivia k=20, margin=1.1
-python $(pwd)/zhiyuan/train_infer.py --dataset_name trivia --device_idx 0 --fp16train --docspec --docspec_layer_num 1 --exp_k 20 --exp_mode 3 --exp_normalize -rn bm25_scu dpr mss-dpr mss contriever --exp_margin 1.1 --training_sample 80
-python $(pwd)/zhiyuan/train_infer.py --dataset_name trivia --device_idx 0 --fp16train --docspec --docspec_layer_num 1 --exp_k 20 --exp_mode 3 --exp_normalize -rn bm25_scu dpr mss-dpr mss contriever --exp_margin 1.1 --training_sample 160
+# python $(pwd)/zhiyuan/train_infer.py --dataset_name trivia --device_idx 0 --fp16train --docspec --docspec_layer_num 1 --exp_k 20 --exp_mode 3 --exp_normalize -rn bm25_scu dpr mss-dpr mss contriever --exp_margin 1.1 --training_sample 80
+python $(pwd)/zhiyuan/train_infer.py --dataset_name trivia --device_idx 0 --fp16train --docspec --docspec_layer_num 1 --exp_k 20 --exp_mode 3 --exp_normalize -rn bm25_scu dpr mss-dpr mss contriever --exp_margin 1.1 --training_sample 2560
 
