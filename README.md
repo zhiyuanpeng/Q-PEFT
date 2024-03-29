@@ -151,4 +151,14 @@ An example when passages are retrieved using BM25 when queries using Natural Que
 ]
 ```
 
+# Reproducibility
+## NQ
+
+## TriviaQA
+
+## WebQ
+
+## SQuAD
+
+
 
